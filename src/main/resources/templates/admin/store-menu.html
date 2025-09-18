@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메뉴 등록 - YumYum CRM</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css(v=${#numbers.formatDecimal(#dates.createNow().getTime(), 0, 0)})}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 사이드바 포함 -->
+        <nav class="sidebar" th:replace="~{layout/admin-layout :: sidebar}"></nav>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="main-content">
+            <!-- 상단 헤더 포함 -->
+            <header class="header" th:replace="~{layout/admin-layout :: header}"></header>
+
+            <!-- 컨텐츠 영역 -->
+            <div class="content">
+                <div class="page-header">
+                    <div th:if="${storeId != null}" class="header-with-back">
+                        <button class="back-arrow-btn" onclick="history.back()">
+                            <span class="arrow">←</span>
+                        </button>
+                        <h2>매장 메뉴 관리</h2>
+                    </div>
+                    <div th:unless="${storeId != null}">
+                        <h2>메뉴 등록</h2>
+                    </div>
+                </div>
+
+                <!-- 탭 메뉴 -->
+                <div class="tab-menu">
+                    <button class="tab-btn active" onclick="switchTab('menu')">메뉴 관리</button>
+                    <button class="tab-btn" onclick="switchTab('options')">옵션 관리</button>
+                </div>
+
+                <!-- 메뉴 관리 탭 -->
+                <div id="menuTab" class="tab-content active">
+                    <!-- 검색 및 필터 영역 -->
+                    <div class="search-filter-area">
+                        <div class="search-row">
+                            <div class="search-input-wrapper">
+                                <input type="text" id="menuSearch" placeholder="메뉴명을 입력해주세요" onkeyup="filterMenus()">
+                                <button onclick="searchMenus()" class="search-icon">검색</button>
+                            </div>
+                            <div class="filter-selects">
+                                <select id="statusFilter" onchange="filterMenus()">
+                                    <option value="">판매상태 전체</option>
+                                    <option value="판매중">판매중</option>
+                                    <option value="품절">품절</option>
+                                    <option value="숨김">숨김</option>
+                                </select>
+                                <select id="categoryFilter" onchange="filterMenus()">
+                                    <option value="">전체</option>
+                                    <option value="피자">피자</option>
+                                    <option value="주류">주류</option>
+                                    <option value="음료">음료</option>
+                                    <option value="디저트">디저트</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="action-row">
+                            <div class="toggle-buttons">
+                                <button id="soldOutBtn" class="status-toggle-btn" onclick="toggleSoldOut()">오늘만 품절</button>
+                                <button id="hiddenBtn" class="status-toggle-btn" onclick="toggleHidden()">숨김</button>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-outline" onclick="addMenuGroup()">+ 메뉴그룹추가</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 메뉴 그룹별 리스트 -->
+                    <div class="menu-groups-container">
+                        <!-- 피자 메뉴그룹 -->
+                        <div class="menu-group" data-group="피자">
+                            <!-- 메뉴그룹 헤더 -->
+                            <div class="group-header">
+                                <div class="group-title">
+                                    <h3>피자</h3>
+                                    <button onclick="editGroupName(this)" class="edit-name-btn">이름수정</button>
+                                </div>
+                                <div class="group-actions">
+                                    <button onclick="reorderGroup(this)" class="reorder-btn">순서변경</button>
+                                </div>
+                            </div>
+                            <div class="group-add-menu">
+                                <button onclick="addMenuToGroup(this)" class="add-menu-btn">+ 메뉴추가</button>
+                            </div>
+                            
+                            <!-- 메뉴 리스트 -->
+                            <div class="menu-items">
+                                <!-- 반반피자 -->
+                                <div class="menu-item" data-status="판매중" data-category="피자">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MEg0MEgyMFYyMFoiIGZpbGw9IiNERUUyRTYiLz4KPHN2Zz4K" alt="메뉴 이미지" class="menu-image">
+                                    
+                                    <div class="menu-info">
+                                        <h4 class="menu-name">반반피자</h4>
+                                        <div class="menu-price">
+                                            <span class="price-large">L: 24,900원</span>
+                                            <span class="price-medium">M: 22,900원</span>
+                                        </div>
+                                        <div class="menu-options">
+                                            [옵션메뉴] 랩건드마토피자 나주혁신
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="menu-actions">
+                                        <button onclick="toggleMenuStatus(this)" class="menu-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 토마토스파게티 -->
+                                <div class="menu-item" data-status="판매중" data-category="피자">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MEg0MEgyMFYyMFoiIGZpbGw9IiNERUUyRTYiLz4KPHN2Zz4K" alt="메뉴 이미지" class="menu-image">
+                                    
+                                    <div class="menu-info">
+                                        <h4 class="menu-name">토마토스파게티</h4>
+                                        <div class="menu-price">
+                                            <span class="price-large">L: 25,900원</span>
+                                            <span class="price-medium">M: 23,900원</span>
+                                        </div>
+                                        <div class="menu-options">
+                                            [옵션메뉴] 랩건드마토피자 나주혁신
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="menu-actions">
+                                        <button onclick="toggleMenuStatus(this)" class="menu-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 고구마리치골드 -->
+                                <div class="menu-item" data-status="판매중" data-category="피자">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MEg0MEgyMFYyMFoiIGZpbGw9IiNERUUyRTYiLz4KPHN2Zz4K" alt="메뉴 이미지" class="menu-image">
+                                    
+                                    <div class="menu-info">
+                                        <h4 class="menu-name">고구마리치골드</h4>
+                                        <div class="menu-price">
+                                            <span class="price-large">L: 25,900원</span>
+                                            <span class="price-medium">M: 23,900원</span>
+                                        </div>
+                                        <div class="menu-options">
+                                            [옵션메뉴] 랩건드마토피자 나주혁신
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="menu-actions">
+                                        <button onclick="toggleMenuStatus(this)" class="menu-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 포테이토리치골드 (품절) -->
+                                <div class="menu-item" data-status="품절" data-category="피자">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MEg0MEgyMFYyMFoiIGZpbGw9IiNERUUyRTYiLz4KPHN2Zz4K" alt="메뉴 이미지" class="menu-image">
+                                    
+                                    <div class="menu-info">
+                                        <h4 class="menu-name">포테이토리치골드</h4>
+                                        <div class="menu-price">
+                                            <span class="price-large">L: 25,900원</span>
+                                            <span class="price-medium">M: 23,900원</span>
+                                        </div>
+                                        <div class="menu-options">
+                                            [옵션메뉴] 랩건드마토피자 나주혁신
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="menu-actions">
+                                        <div class="sold-out-badge">품절</div>
+                                        <button onclick="toggleMenuStatus(this)" class="menu-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 사이드 메뉴그룹 -->
+                        <div class="menu-group" data-group="사이드">
+                            <!-- 메뉴그룹 헤더 -->
+                            <div class="group-header">
+                                <div class="group-title">
+                                    <h3>사이드</h3>
+                                    <button onclick="editGroupName(this)" class="edit-name-btn">이름수정</button>
+                                </div>
+                                <div class="group-actions">
+                                    <button onclick="reorderGroup(this)" class="reorder-btn">순서변경</button>
+                                </div>
+                            </div>
+                            <div class="group-add-menu">
+                                <button onclick="addMenuToGroup(this)" class="add-menu-btn">+ 메뉴추가</button>
+                            </div>
+                            
+                            <!-- 메뉴 리스트 -->
+                            <div class="menu-items">
+                                <!-- 치킨윙 -->
+                                <div class="menu-item" data-status="판매중" data-category="사이드">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MEg0MEgyMFYyMFoiIGZpbGw9IiNERUUyRTYiLz4KPHN2Zz4K" alt="메뉴 이미지" class="menu-image">
+                                    
+                                    <div class="menu-info">
+                                        <h4 class="menu-name">치킨윙</h4>
+                                        <div class="menu-price">
+                                            <span class="price-large">8,900원</span>
+                                        </div>
+                                        <div class="menu-options">
+                                            [옵션메뉴] 소스 선택
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="menu-actions">
+                                        <button onclick="toggleMenuStatus(this)" class="menu-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 음료 메뉴그룹 -->
+                        <div class="menu-group" data-group="음료">
+                            <!-- 메뉴그룹 헤더 -->
+                            <div class="group-header">
+                                <div class="group-title">
+                                    <h3>음료</h3>
+                                    <button onclick="editGroupName(this)" class="edit-name-btn">이름수정</button>
+                                </div>
+                                <div class="group-actions">
+                                    <button onclick="reorderGroup(this)" class="reorder-btn">순서변경</button>
+                                </div>
+                            </div>
+                            <div class="group-add-menu">
+                                <button onclick="addMenuToGroup(this)" class="add-menu-btn">+ 메뉴추가</button>
+                            </div>
+                            
+                            <!-- 메뉴 리스트 -->
+                            <div class="menu-items">
+                                <!-- 콜라 -->
+                                <div class="menu-item" data-status="판매중" data-category="음료">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MEg0MEgyMFYyMFoiIGZpbGw9IiNERUUyRTYiLz4KPHN2Zz4K" alt="메뉴 이미지" class="menu-image">
+                                    
+                                    <div class="menu-info">
+                                        <h4 class="menu-name">콜라</h4>
+                                        <div class="menu-price">
+                                            <span class="price-large">2,500원</span>
+                                        </div>
+                                        <div class="menu-options">
+                                            [옵션메뉴] 사이즈 선택
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="menu-actions">
+                                        <button onclick="toggleMenuStatus(this)" class="menu-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 메뉴가 없을 때 표시 -->
+                    <div class="no-menu-data" id="noMenuData" style="display: none; text-align: center; padding: 60px 20px; color: #9ca3af;">
+                        <div class="empty-state">
+                            <h3>검색 결과가 없습니다</h3>
+                            <p>다른 검색어나 필터를 시도해보세요</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 옵션 관리 탭 -->
+                <div id="optionsTab" class="tab-content">
+                    <!-- 검색 및 필터 영역 -->
+                    <div class="search-filter-area">
+                        <div class="search-row">
+                            <div class="search-input-wrapper">
+                                <input type="text" id="optionSearch" placeholder="옵션명을 입력해주세요" onkeyup="filterOptions()">
+                                <button onclick="searchOptions()" class="search-icon">검색</button>
+                            </div>
+                            <div class="filter-selects">
+                                <select id="optionStatusFilter" onchange="filterOptions()">
+                                    <option value="">판매상태 전체</option>
+                                    <option value="판매중">판매중</option>
+                                    <option value="품절">품절</option>
+                                    <option value="숨김">숨김</option>
+                                </select>
+                                <select id="optionTypeFilter" onchange="filterOptions()">
+                                    <option value="">전체</option>
+                                    <option value="필수">필수</option>
+                                    <option value="선택">선택</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="action-row">
+                            <div class="toggle-buttons">
+                                <button id="optionSoldOutBtn" class="status-toggle-btn" onclick="toggleOptionSoldOut()">오늘만 품절</button>
+                                <button id="optionHiddenBtn" class="status-toggle-btn" onclick="toggleOptionHidden()">숨김</button>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="addOption()">+ 옵션 추가</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 옵션 그룹 리스트 -->
+                    <div class="option-groups-container">
+                        <!-- 포토리뷰 옵션그룹 -->
+                        <div class="option-group" data-group="포토리뷰" data-status="판매중" data-type="선택">
+                            <div class="group-header">
+                                <div class="group-title">
+                                    <h3>포토리뷰&웹 이벤트</h3>
+                                    <button onclick="editGroupName(this)" class="edit-name-btn">이름수정</button>
+                                </div>
+                                <div class="group-info">
+                                    <span class="group-type">선택</span>
+                                    <span class="group-limit">최대 1개</span>
+                                </div>
+                            </div>
+                            <div class="group-add-menu">
+                                <button onclick="addOptionToGroup(this)" class="add-menu-btn">+ 옵션추가</button>
+                            </div>
+                            
+                            <!-- 옵션 리스트 -->
+                            <div class="option-items">
+                                <div class="option-item" data-status="판매중">
+                                    <div class="option-info">
+                                        <h4 class="option-name">포토리뷰: X 이벤트 안함게요</h4>
+                                        <div class="option-price">0원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                <div class="option-item" data-status="판매중">
+                                    <div class="option-info">
+                                        <h4 class="option-name">포토리뷰: 갈릭딥핑 2개 (5점 후기 부탁드려요)</h4>
+                                        <div class="option-price">0원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                <div class="option-item" data-status="판매중">
+                                    <div class="option-info">
+                                        <h4 class="option-name">포토리뷰: 모짜렐라 100g (5점 후기 부탁드려요)</h4>
+                                        <div class="option-price">0원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                <div class="option-item" data-status="판매중">
+                                    <div class="option-info">
+                                        <h4 class="option-name">포토리뷰: 바베큐스파크 2개 (5점 후기 부탁드려요)</h4>
+                                        <div class="option-price">0원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 사이즈 선택 옵션그룹 -->
+                        <div class="option-group" data-group="사이즈" data-status="판매중" data-type="필수">
+                            <div class="group-header">
+                                <div class="group-title">
+                                    <h3>사이즈 선택</h3>
+                                    <button onclick="editGroupName(this)" class="edit-name-btn">이름수정</button>
+                                </div>
+                                <div class="group-info">
+                                    <span class="group-type required">필수</span>
+                                </div>
+                            </div>
+                            <div class="group-add-menu">
+                                <button onclick="addOptionToGroup(this)" class="add-menu-btn">+ 옵션추가</button>
+                            </div>
+                            
+                            <!-- 옵션 리스트 -->
+                            <div class="option-items">
+                                <div class="option-item" data-status="판매중">
+                                    <div class="option-info">
+                                        <h4 class="option-name">Large (L)</h4>
+                                        <div class="option-price">+2,000원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                <div class="option-item" data-status="판매중">
+                                    <div class="option-info">
+                                        <h4 class="option-name">Medium (M)</h4>
+                                        <div class="option-price">0원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 음료 선택 옵션그룹 -->
+                        <div class="option-group" data-group="음료" data-status="품절" data-type="선택">
+                            <div class="group-header">
+                                <div class="group-title">
+                                    <h3>음료 선택</h3>
+                                    <button onclick="editGroupName(this)" class="edit-name-btn">이름수정</button>
+                                </div>
+                                <div class="group-info">
+                                    <span class="group-type">선택</span>
+                                    <span class="group-limit">최대 2개</span>
+                                    <span class="status-badge sold-out">품절</span>
+                                </div>
+                            </div>
+                            <div class="group-add-menu">
+                                <button onclick="addOptionToGroup(this)" class="add-menu-btn">+ 옵션추가</button>
+                            </div>
+                            
+                            <!-- 옵션 리스트 -->
+                            <div class="option-items">
+                                <div class="option-item" data-status="품절">
+                                    <div class="option-info">
+                                        <h4 class="option-name">콜라</h4>
+                                        <div class="option-price">+1,500원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <div class="sold-out-badge">품절</div>
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                                <div class="option-item" data-status="품절">
+                                    <div class="option-info">
+                                        <h4 class="option-name">사이다</h4>
+                                        <div class="option-price">+1,500원</div>
+                                    </div>
+                                    <div class="option-actions">
+                                        <div class="sold-out-badge">품절</div>
+                                        <button onclick="toggleOptionStatus(this)" class="option-action-btn">⋮</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 옵션이 없을 때 표시 -->
+                    <div class="no-option-data" id="noOptionData" style="display: none;">
+                        <div class="empty-state">
+                            <h3>검색 결과가 없습니다</h3>
+                            <p>다른 검색어나 필터를 시도해보세요</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 메뉴 등록/수정 모달 -->
+    <div id="menuModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 id="menuModalTitle">새 메뉴 추가</h3>
+                <button class="close-btn" onclick="closeMenuModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="menuForm">
+                    <div class="form-section">
+                        <h4>기본 정보</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="menuName">메뉴명 *</label>
+                                <input type="text" id="menuName" name="menuName" placeholder="메뉴명을 입력하세요" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="menuPrice">가격 *</label>
+                                <input type="number" id="menuPrice" name="menuPrice" placeholder="0" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="menuGroup">상위메뉴그룹 (선택사항)</label>
+                            <select id="menuGroup" name="menuGroup">
+                                <option value="">메뉴그룹을 선택하세요 (선택하지 않으면 기본 메뉴에 추가됩니다)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="menuDescription">메뉴 설명</label>
+                            <textarea id="menuDescription" name="menuDescription" rows="3" placeholder="메뉴에 대한 설명을 입력하세요"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>메뉴 사진</h4>
+                        <div class="form-group">
+                            <label for="menuImage">메뉴 사진 URL (선택사항)</label>
+                            <input type="url" id="menuImage" name="menuImage" placeholder="PDF, JPEG 등 파일형식으로 첨부하거나 이미지 URL을 입력하세요">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="menuImageFile">또는 파일 업로드</label>
+                            <div class="file-upload-area">
+                                <input type="file" id="menuImageFile" name="menuImageFile" accept="image/jpeg,image/png,image/jpg" onchange="handleMenuImageUpload(this)">
+                                <div class="file-preview" id="menuImagePreview">
+                                    <p>JPEG, PNG 이미지 파일을 업로드하세요</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>메뉴 옵션</h4>
+                        <div class="form-group">
+                            <label>선택 가능한 옵션 (맵기, 크기, 사이드 등)</label>
+                            <div class="option-groups-selection" id="optionGroupsSelection">
+                                <!-- 옵션 그룹들이 여기에 동적으로 로드됩니다 -->
+                            </div>
+                            <div class="option-add-section" style="margin-top: 12px;">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="openMenuOptionGroupSelector()">+ 옵션 추가</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMenuModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveMenu()">메뉴 추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메뉴그룹 추가 모달 -->
+    <div id="menuGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>메뉴그룹 추가</h3>
+                <button class="close-btn" onclick="closeMenuGroupModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="menuGroupForm">
+                    <div class="form-group">
+                        <label for="groupName">메뉴그룹명 *</label>
+                        <input type="text" id="groupName" name="groupName" placeholder="예: 찌개류, 밥류, 음료" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="groupDescription">그룹 설명</label>
+                        <textarea id="groupDescription" name="groupDescription" rows="2" placeholder="메뉴그룹에 대한 간단한 설명"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMenuGroupModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveMenuGroup()">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 옵션그룹 추가/수정 모달 -->
+    <div id="optionGroupModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 id="optionGroupModalTitle">옵션그룹 추가</h3>
+                <button class="close-btn" onclick="closeOptionGroupModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="optionGroupForm">
+                    <div class="form-section">
+                        <h4>기본 정보</h4>
+                        <div class="form-group">
+                            <label for="optionGroupName">옵션그룹명 *</label>
+                            <input type="text" id="optionGroupName" name="optionGroupName" placeholder="예: 맵기 조절, 크기 선택, 사이드 메뉴, 음료 선택" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="optionGroupDescription">그룹 설명</label>
+                            <textarea id="optionGroupDescription" name="optionGroupDescription" rows="2" placeholder="고객이 선택할 수 있는 옵션 그룹에 대한 설명 (예: 맵기 정도를 선택해주세요)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="isRequired" name="isRequired">
+                                <span>필수 선택 옵션</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h4>옵션 아이템 (선택지)</h4>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addOptionItem()">+ 선택지 추가</button>
+                        </div>
+                        <div class="option-items-container" id="optionItemsContainer">
+                            <!-- 옵션 아이템들이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOptionGroupModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveOptionGroup()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 옵션 아이템 추가 모달 -->
+    <div id="optionItemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="optionItemModalTitle">새 옵션 아이템 추가</h3>
+                <button class="close-btn" onclick="closeOptionItemModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="optionItemForm">
+                    <div class="form-section">
+                        <h4>기본 정보</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="optionItemName">선택지명 *</label>
+                                <input type="text" id="optionItemName" name="optionItemName" placeholder="예: 대(+2000원), 중(+1000원), 소(무료), 순한맛, 보통, 매운맛" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="optionItemPrice">추가 가격 (원)</label>
+                                <input type="number" id="optionItemPrice" name="optionItemPrice" placeholder="0" min="0" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="optionItemGroup">상위 옵션그룹 *</label>
+                            <select id="optionItemGroup" name="optionItemGroup" required>
+                                <option value="">옵션그룹을 선택하세요</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="optionItemDescription">선택지 설명</label>
+                            <textarea id="optionItemDescription" name="optionItemDescription" rows="2" placeholder="해당 선택지에 대한 설명 (예: 매운 정도, 크기 차이 등)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>옵션 이미지</h4>
+                        <div class="form-group">
+                            <label for="optionItemImageFile">옵션 이미지 업로드</label>
+                            <div class="file-upload-area">
+                                <input type="file" id="optionItemImageFile" name="optionItemImageFile" accept="image/jpeg,image/png">
+                                <div class="file-preview" id="optionItemImagePreview">
+                                    <p>JPEG, PNG 등 이미지 파일을 업로드하세요</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOptionItemModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveOptionItem()">옵션 추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메뉴 상세 모달 -->
+    <div id="menuDetailModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>메뉴 상세 정보</h3>
+                <button class="close-btn" onclick="closeMenuDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="menuDetailForm">
+                    <div class="form-group">
+                        <label for="detailMenuName">메뉴명</label>
+                        <input type="text" id="detailMenuName" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="detailMenuDescription">메뉴 설명</label>
+                        <textarea id="detailMenuDescription" class="form-control" rows="3" readonly></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="detailMenuPrice">가격</label>
+                        <input type="number" id="detailMenuPrice" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="detailMenuCategory">카테고리</label>
+                        <select id="detailMenuCategory" class="form-control" disabled>
+                            <option value="메인요리">메인요리</option>
+                            <option value="사이드메뉴">사이드메뉴</option>
+                            <option value="음료">음료</option>
+                            <option value="디저트">디저트</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>선택 가능한 옵션</label>
+                        <div class="option-groups-selection" id="detailOptionGroups">
+                            <!-- 맵기, 크기, 사이드 등 옵션 그룹들이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                        <div class="option-add-section" style="margin-top: 12px;">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="openOptionGroupSelector()" id="addOptionBtn" disabled>+ 옵션 추가</button>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="editMenuDetail()">수정</button>
+                <button class="btn btn-secondary" onclick="closeMenuDetailModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 옵션 그룹 상세 모달 -->
+    <div id="optionDetailModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>옵션 그룹 상세 정보</h3>
+                <button class="close-btn" onclick="closeOptionDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="optionDetailForm">
+                    <div class="form-group">
+                        <label for="detailOptionGroupName">옵션그룹명</label>
+                        <input type="text" id="detailOptionGroupName" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="detailOptionGroupDescription">설명</label>
+                        <textarea id="detailOptionGroupDescription" class="form-control" rows="3" readonly></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="detailIsRequired" disabled> 필수 옵션
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="section-header">
+                            <h4>옵션 아이템</h4>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="addDetailOptionItem()" disabled>+ 아이템 추가</button>
+                        </div>
+                        <div id="detailOptionItemsContainer" class="option-items-container">
+                            <!-- 옵션 아이템들이 여기에 동적으로 표시됩니다 -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="editOptionGroupDetail()">수정</button>
+                <button class="btn btn-secondary" onclick="closeOptionDetailModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 옵션 그룹 선택 모달 -->
+    <div id="optionGroupSelectorModal" class="modal">
+        <div class="modal-content medium-modal">
+            <div class="modal-header">
+                <h3>옵션 그룹 선택</h3>
+                <button class="close-btn" onclick="closeOptionGroupSelector()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-section">
+                    <div class="search-bar">
+                        <input type="text" id="optionGroupSearch" class="form-control" placeholder="옵션 그룹명으로 검색..." onkeyup="filterOptionGroups()">
+                        <button class="btn btn-outline-secondary" onclick="clearOptionGroupSearch()">초기화</button>
+                    </div>
+                </div>
+                
+                <div class="option-group-list-section">
+                    <div class="section-header">
+                        <h4>사용 가능한 옵션 그룹</h4>
+                        <div class="select-all-section">
+                            <label>
+                                <input type="checkbox" id="selectAllOptions" onchange="toggleAllOptionGroups()">
+                                전체 선택
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="option-groups-container" id="availableOptionGroups">
+                        <!-- 옵션 그룹 목록이 여기에 동적으로 추가됩니다 -->
+                    </div>
+                    
+                    <div class="no-results" id="noOptionsFound" style="display: none;">
+                        <p>검색 결과가 없습니다.</p>
+                    </div>
+                </div>
+                
+                <div class="selected-count">
+                    선택된 옵션 그룹: <span id="selectedOptionCount">0</span>개
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveSelectedOptionGroups()">저장</button>
+                <button class="btn btn-secondary" onclick="closeOptionGroupSelector()">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/admin.js}"></script>
+    <script th:src="@{/js/menu-registration.js}"></script>
+    <script>
+        // 메뉴 그룹 관리 기능
+        function editGroupName(button) {
+            const groupTitle = button.parentElement.querySelector('h3');
+            const currentName = groupTitle.textContent;
+            
+            // 입력 필드 생성
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentName;
+            input.style.cssText = `
+                font-size: 18px;
+                font-weight: 600;
+                color: #1f2937;
+                border: 1px solid #3b82f6;
+                border-radius: 4px;
+                padding: 4px 8px;
+                margin: 0;
+                width: 200px;
+            `;
+            
+            // 입력 필드로 교체
+            groupTitle.replaceWith(input);
+            input.focus();
+            
+            // 입력 완료 처리
+            function finishEdit() {
+                const newName = input.value.trim();
+                if (newName) {
+                    const newTitle = document.createElement('h3');
+                    newTitle.textContent = newName;
+                    newTitle.style.cssText = groupTitle.style.cssText;
+                    input.replaceWith(newTitle);
+                }
+            }
+            
+            // 이벤트 리스너 추가
+            input.addEventListener('blur', finishEdit);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    finishEdit();
+                }
+            });
+        }
+
+        function addMenuToGroup(button) {
+            const group = button.closest('.menu-group');
+            const groupName = group.querySelector('h3').textContent;
+            
+            // 메뉴 추가 모달 열기
+            const menuModal = document.getElementById('menuModal');
+            if (menuModal) {
+                const groupSelect = menuModal.querySelector('#menuGroup');
+                if (groupSelect) {
+                    // 그룹 선택 업데이트
+                    let found = false;
+                    for (let option of groupSelect.options) {
+                        if (option.text === groupName) {
+                            option.selected = true;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        const newOption = new Option(groupName, groupName);
+                        groupSelect.add(newOption);
+                        newOption.selected = true;
+                    }
+                }
+                menuModal.style.display = 'block';
+            }
+        }
+
+        let isReordering = false;
+        function reorderGroup(button) {
+            const group = button.closest('.menu-group');
+            const menuItems = group.querySelector('.menu-items');
+            isReordering = !isReordering;
+            
+            if (isReordering) {
+                // 순서 변경 모드 활성화
+                button.textContent = '순서저장';
+                button.style.color = '#3b82f6';
+                button.style.borderColor = '#3b82f6';
+                
+                // 드래그 핸들 추가
+                menuItems.querySelectorAll('.menu-item').forEach(item => {
+                    const handle = document.createElement('div');
+                    handle.className = 'drag-handle';
+                    handle.innerHTML = '⋮⋮';
+                    handle.style.cssText = `
+                        cursor: move;
+                        padding: 8px;
+                        color: #6b7280;
+                        margin-right: 8px;
+                    `;
+                    item.insertBefore(handle, item.firstChild);
+                    
+                    // 드래그 앤 드롭 설정
+                    item.draggable = true;
+                    item.addEventListener('dragstart', handleDragStart);
+                    item.addEventListener('dragover', handleDragOver);
+                    item.addEventListener('drop', handleDrop);
+                });
+            } else {
+                // 순서 변경 모드 비활성화
+                button.textContent = '순서변경';
+                button.style.color = '#374151';
+                button.style.borderColor = '#e5e7eb';
+                
+                // 드래그 핸들 제거
+                menuItems.querySelectorAll('.drag-handle').forEach(handle => handle.remove());
+                menuItems.querySelectorAll('.menu-item').forEach(item => {
+                    item.draggable = false;
+                    item.removeEventListener('dragstart', handleDragStart);
+                    item.removeEventListener('dragover', handleDragOver);
+                    item.removeEventListener('drop', handleDrop);
+                });
+            }
+        }
+
+        // 드래그 앤 드롭 이벤트 핸들러
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.style.opacity = '0.4';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            const rect = this.getBoundingClientRect();
+            const midpoint = rect.top + rect.height / 2;
+            
+            if (e.clientY < midpoint) {
+                this.style.borderTop = '2px solid #3b82f6';
+                this.style.borderBottom = '';
+            } else {
+                this.style.borderBottom = '2px solid #3b82f6';
+                this.style.borderTop = '';
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.style.borderTop = '';
+            this.style.borderBottom = '';
+            
+            if (draggedItem !== this) {
+                const rect = this.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                const menuItems = this.parentNode;
+                
+                if (e.clientY < midpoint) {
+                    menuItems.insertBefore(draggedItem, this);
+                } else {
+                    menuItems.insertBefore(draggedItem, this.nextSibling);
+                }
+            }
+            
+            draggedItem.style.opacity = '1';
+            draggedItem = null;
+        }
+
+        // 검색 및 필터 기능
+        function filterMenus() {
+            const searchTerm = document.getElementById('menuSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const menuItems = document.querySelectorAll('.menu-item');
+            const menuGroups = document.querySelectorAll('.menu-group');
+            let visibleCount = 0;
+            let totalVisibleItems = 0;
+
+            // 각 메뉴 그룹별로 처리
+            menuGroups.forEach(group => {
+                const groupItems = group.querySelectorAll('.menu-item');
+                let visibleItemsInGroup = 0;
+
+                groupItems.forEach(item => {
+                    const menuName = item.querySelector('h4').textContent.toLowerCase();
+                    const status = item.getAttribute('data-status');
+                    const category = item.getAttribute('data-category');
+
+                    let showItem = true;
+
+                    // 검색어 필터링
+                    if (searchTerm && !menuName.includes(searchTerm)) {
+                        showItem = false;
+                    }
+
+                    // 상태 필터링
+                    if (statusFilter && status !== statusFilter) {
+                        showItem = false;
+                    }
+
+                    // 카테고리 필터링 (그룹명 또는 개별 메뉴 카테고리로 필터링)
+                    if (categoryFilter) {
+                        const groupName = group.getAttribute('data-group');
+                        if (category !== categoryFilter && groupName !== categoryFilter) {
+                            showItem = false;
+                        }
+                    }
+
+                    if (showItem) {
+                        item.style.display = 'flex';
+                        visibleItemsInGroup++;
+                        totalVisibleItems++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // 그룹에 보이는 메뉴가 있으면 그룹을 표시, 없으면 숨김
+                if (visibleItemsInGroup > 0) {
+                    group.style.display = 'block';
+                    // 그룹 헤더의 메뉴 개수 업데이트
+                    const countSpan = group.querySelector('span');
+                    if (countSpan) {
+                        countSpan.textContent = `${visibleItemsInGroup}개 메뉴`;
+                    }
+                    visibleCount++;
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+
+            // 검색 결과가 없을 때 메시지 표시
+            const noDataDiv = document.getElementById('noMenuData');
+            if (totalVisibleItems === 0) {
+                noDataDiv.style.display = 'block';
+            } else {
+                noDataDiv.style.display = 'none';
+            }
+        }
+
+        function searchMenus() {
+            filterMenus();
+        }
+
+        // 상태 토글 기능
+        let soldOutMode = false;
+        let hiddenMode = false;
+
+        function toggleSoldOut() {
+            const btn = document.getElementById('soldOutBtn');
+            soldOutMode = !soldOutMode;
+            
+            if (soldOutMode) {
+                btn.style.background = '#ef4444';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#ef4444';
+                // 품절 메뉴만 보이도록 필터링
+                document.getElementById('statusFilter').value = '품절';
+            } else {
+                btn.style.background = '#fff';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#ddd';
+                // 전체 보기
+                document.getElementById('statusFilter').value = '';
+            }
+            filterMenus();
+        }
+
+        function toggleHidden() {
+            const btn = document.getElementById('hiddenBtn');
+            hiddenMode = !hiddenMode;
+            
+            if (hiddenMode) {
+                btn.style.background = '#6b7280';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#6b7280';
+                // 숨김 메뉴만 보이도록 필터링
+                document.getElementById('statusFilter').value = '숨김';
+            } else {
+                btn.style.background = '#fff';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#ddd';
+                // 전체 보기
+                document.getElementById('statusFilter').value = '';
+            }
+            filterMenus();
+        }
+
+        // 메뉴 상태 변경 드롭다운
+        function toggleMenuStatus(button) {
+            // 기존 드롭다운 제거
+            const existingDropdown = document.querySelector('.status-dropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+                return;
+            }
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'status-dropdown';
+            dropdown.style.cssText = `
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 1000;
+                min-width: 120px;
+            `;
+
+            const options = [
+                { value: '판매중', label: '판매중', color: '#10b981' },
+                { value: '품절', label: '품절', color: '#ef4444' },
+                { value: '숨김', label: '숨김', color: '#6b7280' },
+                { value: 'edit', label: '수정', color: '#3b82f6' },
+                { value: 'delete', label: '삭제', color: '#ef4444' }
+            ];
+
+            options.forEach(option => {
+                const item = document.createElement('div');
+                item.style.cssText = `
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    border-bottom: 1px solid #f3f4f6;
+                    color: ${option.color};
+                    font-size: 14px;
+                `;
+                item.textContent = option.label;
+                item.onclick = () => {
+                    handleMenuAction(button, option.value);
+                    dropdown.remove();
+                };
+                item.onmouseover = () => item.style.background = '#f9fafb';
+                item.onmouseout = () => item.style.background = 'white';
+                dropdown.appendChild(item);
+            });
+
+            button.parentElement.appendChild(dropdown);
+            
+            // 외부 클릭시 드롭다운 닫기
+            setTimeout(() => {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!dropdown.contains(e.target) && e.target !== button) {
+                        dropdown.remove();
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }, 0);
+        }
+
+        function handleMenuAction(button, action) {
+            const menuItem = button.closest('.menu-item');
+            const menuName = menuItem.querySelector('h4').textContent;
+
+            switch(action) {
+                case '판매중':
+                    menuItem.setAttribute('data-status', '판매중');
+                    menuItem.style.opacity = '1';
+                    // 품절 라벨 제거
+                    const soldOutLabel = menuItem.querySelector('div[style*="품절"]');
+                    if (soldOutLabel) soldOutLabel.remove();
+                    alert(`${menuName}을(를) 판매중으로 변경했습니다.`);
+                    break;
+                case '품절':
+                    menuItem.setAttribute('data-status', '품절');
+                    menuItem.style.opacity = '0.6';
+                    // 품절 라벨 추가
+                    const existingLabel = menuItem.querySelector('div[style*="품절"]');
+                    if (!existingLabel) {
+                        const actionArea = menuItem.querySelector('div:last-child');
+                        const soldOutBadge = document.createElement('div');
+                        soldOutBadge.style.cssText = 'background: rgba(239, 68, 68, 0.9); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; margin-right: 8px;';
+                        soldOutBadge.textContent = '품절';
+                        actionArea.insertBefore(soldOutBadge, actionArea.firstChild);
+                    }
+                    alert(`${menuName}을(를) 품절로 변경했습니다.`);
+                    break;
+                case '숨김':
+                    menuItem.setAttribute('data-status', '숨김');
+                    menuItem.style.opacity = '0.4';
+                    alert(`${menuName}을(를) 숨김으로 변경했습니다.`);
+                    break;
+                case 'edit':
+                    alert(`${menuName} 수정 기능은 준비 중입니다.`);
+                    break;
+                case 'delete':
+                    if (confirm(`${menuName}을(를) 삭제하시겠습니까?`)) {
+                        menuItem.remove();
+                        alert(`${menuName}이(가) 삭제되었습니다.`);
+                        // 그룹의 메뉴 개수 업데이트
+                        updateGroupMenuCount();
+                    }
+                    break;
+            }
+            filterMenus(); // 필터 재적용
+        }
+        
+        // 메뉴 그룹 액션 드롭다운
+        function toggleMenuGroupActions(button) {
+            // 기존 드롭다운 제거
+            const existingDropdown = document.querySelector('.group-actions-dropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+                return;
+            }
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'group-actions-dropdown';
+            dropdown.style.cssText = `
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 1000;
+                min-width: 150px;
+            `;
+
+            const options = [
+                { value: 'add-menu', label: '메뉴 추가', color: '#3b82f6' },
+                { value: 'edit-group', label: '그룹 수정', color: '#3b82f6' },
+                { value: 'delete-group', label: '그룹 삭제', color: '#ef4444' }
+            ];
+
+            options.forEach(option => {
+                const item = document.createElement('div');
+                item.style.cssText = `
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    border-bottom: 1px solid #f3f4f6;
+                    color: ${option.color};
+                    font-size: 14px;
+                `;
+                item.textContent = option.label;
+                item.onclick = () => {
+                    handleGroupAction(button, option.value);
+                    dropdown.remove();
+                };
+                item.onmouseover = () => item.style.background = '#f9fafb';
+                item.onmouseout = () => item.style.background = 'white';
+                dropdown.appendChild(item);
+            });
+
+            button.parentElement.appendChild(dropdown);
+            
+            // 외부 클릭시 드롭다운 닫기
+            setTimeout(() => {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!dropdown.contains(e.target) && e.target !== button) {
+                        dropdown.remove();
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }, 0);
+        }
+
+        function handleGroupAction(button, action) {
+            const menuGroup = button.closest('.menu-group');
+            const groupName = menuGroup.querySelector('h3').textContent;
+
+            switch(action) {
+                case 'add-menu':
+                    alert(`${groupName} 그룹에 메뉴 추가 기능은 준비 중입니다.`);
+                    break;
+                case 'edit-group':
+                    alert(`${groupName} 그룹 수정 기능은 준비 중입니다.`);
+                    break;
+                case 'delete-group':
+                    if (confirm(`${groupName} 그룹을 삭제하시겠습니까? 그룹 내 모든 메뉴도 함께 삭제됩니다.`)) {
+                        menuGroup.remove();
+                        alert(`${groupName} 그룹이 삭제되었습니다.`);
+                        filterMenus();
+                    }
+                    break;
+            }
+        }
+
+        // 그룹의 메뉴 개수 업데이트
+        function updateGroupMenuCount() {
+            document.querySelectorAll('.menu-group').forEach(group => {
+                const visibleItems = group.querySelectorAll('.menu-item[style*="flex"], .menu-item:not([style*="none"])').length;
+                const countSpan = group.querySelector('span');
+                if (countSpan) {
+                    countSpan.textContent = `${visibleItems}개 메뉴`;
+                }
+            });
+        }
+
+        // 탭 전환 기능
+        function switchTab(tabName) {
+            // 탭 버튼 상태 변경
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 탭 컨텐츠 표시/숨김
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // 옵션 검색 및 필터 기능
+        function filterOptions() {
+            const searchTerm = document.getElementById('optionSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('optionStatusFilter').value;
+            const typeFilter = document.getElementById('optionTypeFilter').value;
+            const optionCards = document.querySelectorAll('.option-group-card');
+            let visibleCount = 0;
+
+            optionCards.forEach(card => {
+                const optionName = card.querySelector('h4').textContent.toLowerCase();
+                const status = card.getAttribute('data-status');
+                const type = card.getAttribute('data-type');
+
+                let showCard = true;
+
+                // 검색어 필터링
+                if (searchTerm && !optionName.includes(searchTerm)) {
+                    showCard = false;
+                }
+
+                // 상태 필터링
+                if (statusFilter && status !== statusFilter) {
+                    showCard = false;
+                }
+
+                // 타입 필터링
+                if (typeFilter && type !== typeFilter) {
+                    showCard = false;
+                }
+
+                if (showCard) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // 검색 결과가 없을 때 메시지 표시
+            const noDataDiv = document.getElementById('noOptionData');
+            if (visibleCount === 0) {
+                noDataDiv.style.display = 'block';
+            } else {
+                noDataDiv.style.display = 'none';
+            }
+        }
+
+        function searchOptions() {
+            filterOptions();
+        }
+
+        // 옵션 상태 토글 기능
+        let optionSoldOutMode = false;
+        let optionHiddenMode = false;
+
+        function toggleOptionSoldOut() {
+            const btn = document.getElementById('optionSoldOutBtn');
+            optionSoldOutMode = !optionSoldOutMode;
+            
+            if (optionSoldOutMode) {
+                btn.style.background = '#ef4444';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#ef4444';
+                // 품절 옵션만 보이도록 필터링
+                document.getElementById('optionStatusFilter').value = '품절';
+            } else {
+                btn.style.background = '#fff';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#ddd';
+                // 전체 보기
+                document.getElementById('optionStatusFilter').value = '';
+            }
+            filterOptions();
+        }
+
+        function toggleOptionHidden() {
+            const btn = document.getElementById('optionHiddenBtn');
+            optionHiddenMode = !optionHiddenMode;
+            
+            if (optionHiddenMode) {
+                btn.style.background = '#6b7280';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#6b7280';
+                // 숨김 옵션만 보이도록 필터링
+                document.getElementById('optionStatusFilter').value = '숨김';
+            } else {
+                btn.style.background = '#fff';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#ddd';
+                // 전체 보기
+                document.getElementById('optionStatusFilter').value = '';
+            }
+            filterOptions();
+        }
+
+        // 옵션 그룹 상태 변경 드롭다운
+        function toggleOptionGroupStatus(button) {
+            // 기존 드롭다운 제거
+            const existingDropdown = document.querySelector('.option-status-dropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+                return;
+            }
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'option-status-dropdown';
+            dropdown.style.cssText = `
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 1000;
+                min-width: 120px;
+            `;
+
+            const options = [
+                { value: '판매중', label: '판매중', color: '#10b981' },
+                { value: '품절', label: '품절', color: '#ef4444' },
+                { value: '숨김', label: '숨김', color: '#6b7280' },
+                { value: 'edit', label: '수정', color: '#3b82f6' },
+                { value: 'delete', label: '삭제', color: '#ef4444' }
+            ];
+
+            options.forEach(option => {
+                const item = document.createElement('div');
+                item.style.cssText = `
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    border-bottom: 1px solid #f3f4f6;
+                    color: ${option.color};
+                    font-size: 14px;
+                `;
+                item.textContent = option.label;
+                item.onclick = () => {
+                    handleOptionGroupAction(button, option.value);
+                    dropdown.remove();
+                };
+                item.onmouseover = () => item.style.background = '#f9fafb';
+                item.onmouseout = () => item.style.background = 'white';
+                dropdown.appendChild(item);
+            });
+
+            button.parentElement.appendChild(dropdown);
+            
+            // 외부 클릭시 드롭다운 닫기
+            setTimeout(() => {
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!dropdown.contains(e.target) && e.target !== button) {
+                        dropdown.remove();
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            }, 0);
+        }
+
+        function handleOptionGroupAction(button, action) {
+            const optionCard = button.closest('.option-group-card');
+            const optionName = optionCard.querySelector('h4').textContent;
+
+            switch(action) {
+                case '판매중':
+                    optionCard.setAttribute('data-status', '판매중');
+                    optionCard.style.opacity = '1';
+                    // 품절 라벨 제거
+                    const soldOutLabel = optionCard.querySelector('div[style*="품절"]');
+                    if (soldOutLabel) soldOutLabel.remove();
+                    // 상태 배지 업데이트
+                    const statusBadge = optionCard.querySelector('span');
+                    statusBadge.textContent = '판매중';
+                    statusBadge.style.color = '#10b981';
+                    statusBadge.style.background = '#dcfce7';
+                    alert(`${optionName}을(를) 판매중으로 변경했습니다.`);
+                    break;
+                case '품절':
+                    optionCard.setAttribute('data-status', '품절');
+                    optionCard.style.opacity = '0.6';
+                    // 상태 배지 업데이트
+                    const statusBadge2 = optionCard.querySelector('span');
+                    statusBadge2.textContent = '품절';
+                    statusBadge2.style.color = '#ef4444';
+                    statusBadge2.style.background = '#fee2e2';
+                    alert(`${optionName}을(를) 품절로 변경했습니다.`);
+                    break;
+                case '숨김':
+                    optionCard.setAttribute('data-status', '숨김');
+                    optionCard.style.opacity = '0.4';
+                    // 상태 배지 업데이트
+                    const statusBadge3 = optionCard.querySelector('span');
+                    statusBadge3.textContent = '숨김';
+                    statusBadge3.style.color = '#6b7280';
+                    statusBadge3.style.background = '#f3f4f6';
+                    alert(`${optionName}을(를) 숨김으로 변경했습니다.`);
+                    break;
+                case 'edit':
+                    alert(`${optionName} 수정 기능은 준비 중입니다.`);
+                    break;
+                case 'delete':
+                    if (confirm(`${optionName}을(를) 삭제하시겠습니까?`)) {
+                        optionCard.remove();
+                        alert(`${optionName}이(가) 삭제되었습니다.`);
+                    }
+                    break;
+            }
+            filterOptions(); // 필터 재적용
+        }
+
+        // 메뉴/메뉴그룹 추가 기능 (기존 기능 유지)
+        function addMenu() {
+            alert('메뉴 추가 기능은 기존 모달을 통해 제공됩니다.');
+            // 기존 메뉴 추가 모달 열기 로직이 있다면 여기서 호출
+        }
+
+        function addMenuGroup() {
+            alert('메뉴그룹 추가 기능은 기존 모달을 통해 제공됩니다.');
+            // 기존 메뉴그룹 추가 모달 열기 로직이 있다면 여기서 호출
+        }
+
+        function addOption() {
+            alert('옵션 추가 기능은 기존 모달을 통해 제공됩니다.');
+            // 기존 옵션 추가 모달 열기 로직이 있다면 여기서 호출
+        }
+
+        // 페이지 로드시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 검색창에서 엔터키 처리
+            document.getElementById('menuSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchMenus();
+                }
+            });
+            
+            // 옵션 검색창에서 엔터키 처리
+            document.getElementById('optionSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchOptions();
+                }
+            });
+        });
+
+        // 브라우저 캐시 강제 갱신
+        var timestamp = new Date().getTime();
+        document.write('<script src="/js/menu-registration.js?v=' + timestamp + '"><\/script>');
+    </script>
+</body>
+</html>
